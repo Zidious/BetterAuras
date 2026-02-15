@@ -1,0 +1,27 @@
+## Interface: 120000
+## Title: BetterAuras
+## Notes: Customize the appearance of buffs and debuffs on party and raid frames. Adjust size, positioning, spacing, padding, and stack count display with real-time preview.
+## Author: Zidious
+## Version: @project-version@
+## SavedVariables: BetterAurasDB
+
+# Core modules (load first)
+Core\Constants.lua
+Core\Defaults.lua
+Core\Database.lua
+Core\Init.lua
+
+# Aura management modules
+Modules\AuraUpdater.lua
+Modules\Anchoring.lua
+Modules\FrameHooks.lua
+
+# UI modules
+UI\Preview.lua
+UI\ControlWidgets.lua
+UI\ProfileDialogs.lua
+UI\ProfileSelector.lua
+UI\ConfigControls.lua
+UI\ConfigPanel.lua
+UI\SettingsIntegration.lua
+UI\SlashCommands.lua
