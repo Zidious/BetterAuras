@@ -1,0 +1,13 @@
+package-as: BetterAuras
+
+enable-nolib-creation: no
+
+ignore:
+  - README.md
+  - .github
+  - .git
+  - .gitignore
+
+manual-changelog:
+  filename: CHANGELOG.md
+  markup-type: markdown

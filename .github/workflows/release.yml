@@ -1,0 +1,141 @@
+name: Release Addon
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: "Version bump type"
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      custom_version:
+        description: "Custom version (optional, overrides version_type)"
+        required: false
+        type: string
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch all history for changelog generation
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Calculate new version
+        id: version
+        run: |
+          # Get the latest tag, or default to 1.0.0 if none exists
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.0.0")
+          CURRENT_VERSION=${LATEST_TAG#v}
+
+          # Split version into components
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+
+          # Calculate new version based on input
+          if [ -n "${{ github.event.inputs.custom_version }}" ]; then
+            NEW_VERSION="${{ github.event.inputs.custom_version }}"
+          else
+            case "${{ github.event.inputs.version_type }}" in
+              major)
+                MAJOR=$((MAJOR + 1))
+                MINOR=0
+                PATCH=0
+                ;;
+              minor)
+                MINOR=$((MINOR + 1))
+                PATCH=0
+                ;;
+              patch)
+                PATCH=$((PATCH + 1))
+                ;;
+            esac
+            NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
+          fi
+
+          echo "version=${NEW_VERSION}" >> $GITHUB_OUTPUT
+          echo "tag=v${NEW_VERSION}" >> $GITHUB_OUTPUT
+          echo "New version will be: ${NEW_VERSION}"
+
+      - name: Update version in files
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+
+          # Update all Lua file headers (@version x.x.x)
+          find . -name "*.lua" -type f -exec sed -i "s/@version [0-9]\+\.[0-9]\+\.[0-9]\+/@version ${VERSION}/g" {} +
+
+          # Update database version in Defaults.lua
+          sed -i "s/version = \"[0-9]\+\.[0-9]\+\.[0-9]\+\"/version = \"${VERSION}\"/g" Core/Defaults.lua
+
+          echo "Updated version to ${VERSION} in all files"
+
+      - name: Commit version changes
+        run: |
+          git add .
+          git commit -m "chore: bump version to ${{ steps.version.outputs.version }}" || echo "No changes to commit"
+          git push origin main
+
+      - name: Create and push tag
+        run: |
+          git tag ${{ steps.version.outputs.tag }}
+          git push origin ${{ steps.version.outputs.tag }}
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Get the previous tag
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 ${{ steps.version.outputs.tag }}^ 2>/dev/null || echo "")
+
+          # Generate changelog
+          if [ -n "$PREVIOUS_TAG" ]; then
+            CHANGELOG=$(git log ${PREVIOUS_TAG}..${{ steps.version.outputs.tag }} --pretty=format:"- %s (%h)" --no-merges)
+          else
+            CHANGELOG=$(git log ${{ steps.version.outputs.tag }} --pretty=format:"- %s (%h)" --no-merges)
+          fi
+
+          # Save changelog to file
+          cat > CHANGELOG.md << EOF
+          # Release ${{ steps.version.outputs.version }}
+
+          ## Changes
+
+          ${CHANGELOG}
+          EOF
+
+          # Output for GitHub Release
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          cat CHANGELOG.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Package addon
+        uses: BigWigsMods/packager@v2.5.1
+        with:
+          args: -g ${{ steps.version.outputs.tag }} -n "{package-name}-{project-version}.zip"
+        env:
+          CF_API_KEY: ${{ secrets.WOW_ADDON_PUBLISH_KEY }}
+          GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2.5.0
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: Release ${{ steps.version.outputs.version }}
+          body: ${{ steps.changelog.outputs.changelog }}
+          files: |
+            .release/*.zip
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
