@@ -121,8 +121,6 @@ jobs:
 
       - name: Package addon
         uses: BigWigsMods/packager@v2.5.1
-        with:
-          args: -g ${{ steps.version.outputs.tag }} -n "{package-name}-{project-version}.zip"
         env:
           CF_API_KEY: ${{ secrets.WOW_ADDON_PUBLISH_KEY }}
           GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
