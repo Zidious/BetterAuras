@@ -1,6 +1,12 @@
 # BetterAuras
 
+<img src="assets/BetterAuras_Logo.png" alt="BetterAuras Logo" align="left" width="120" style="margin-right: 20px;">
+
 Customize the appearance of buffs and debuffs on party and raid frames. Adjust size, positioning, spacing, padding, and stack count display with real-time preview.
+
+<br clear="left"/>
+
+<img src="assets/BetterAuras_Config.png" alt="BetterAuras Configuration Panel" align="right" width="450" style="margin-left: 20px; margin-bottom: 20px;">
 
 ## Features
 
