@@ -6,7 +6,7 @@
 
     @file ProfileDialogs.lua
     @author Zidious
-    @version 1.0.0
+    @version 1.0.1
 ]]
 
 local ADDON_NAME, namespace = ...
