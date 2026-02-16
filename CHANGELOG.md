@@ -27,3 +27,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Profile management system
 - Slash command interface (`/ba`)
 - Settings integration with WoW's addon settings
+
+## [1.0.1] - Bug Fixes and Improvements
+
+### Added
+
+- chore: bump version to 1.0.1 (1261180)
+- chore: position image correctly (9437e44)
+- chore: panel image (764d98f)
+- fix lua error relating to profiles (dbcac75)
