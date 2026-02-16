@@ -6,7 +6,9 @@ Customize the appearance of buffs and debuffs on party and raid frames. Adjust s
 
 <br clear="left"/>
 
-<img src="assets/BetterAuras_Config.png" alt="BetterAuras Configuration Panel" align="right" width="450" style="margin-left: 20px; margin-bottom: 20px;">
+<div align="center">
+<img src="assets/BetterAuras_Config.png" alt="BetterAuras Configuration Panel" width="500">
+</div>
 
 ## Features
 
@@ -26,7 +28,7 @@ Customize the appearance of buffs and debuffs on party and raid frames. Adjust s
 
 ## Usage
 
-Open the configuration panel with `/ba` and use the sliders to customize your auras. Changes apply instantly to all party and raid frames. Create profiles for different situations (PvE, PvP, etc.) using the profile dropdown
+Open the configuration panel with `/ba` and use the sliders to customize your auras. Changes apply instantly to all party and raid frames. Create profiles for different situations (PvE, PvP, etc.) using the profile dropdown.
 
 ## Configuration
 
