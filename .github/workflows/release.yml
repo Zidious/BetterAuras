@@ -137,3 +137,63 @@ jobs:
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update CHANGELOG.md
+        run: |
+          # Get the previous tag
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 ${{ steps.version.outputs.tag }}^ 2>/dev/null || echo "")
+
+          # Generate changelog entries
+          if [ -n "$PREVIOUS_TAG" ]; then
+            CHANGES=$(git log ${PREVIOUS_TAG}..${{ steps.version.outputs.tag }} --pretty=format:"- %s (%h)" --no-merges)
+          else
+            CHANGES=$(git log ${{ steps.version.outputs.tag }} --pretty=format:"- %s (%h)" --no-merges)
+          fi
+
+          # Get today's date
+          RELEASE_DATE=$(date +%Y-%m-%d)
+
+          # Read current CHANGELOG.md and insert new release section
+          # Create temporary file with new release entry
+          awk -v version="${{ steps.version.outputs.version }}" \
+              -v date="$RELEASE_DATE" \
+              -v changes="$CHANGES" \
+          'BEGIN {printed=0}
+          /## \[Unreleased\]/ {
+            print $0
+            print ""
+            if (!printed) {
+              print "## [" version "] - " date
+              print ""
+              print "### Added"
+              print ""
+              # Print the changes
+              system("echo \"" changes "\" | sed \"s/^/\\n/\"")
+              print ""
+              printed=1
+            }
+            next
+          }
+          {print}' CHANGELOG.md > CHANGELOG.tmp
+
+          # Replace old CHANGELOG with updated one
+          mv CHANGELOG.tmp CHANGELOG.md
+
+      - name: Create Pull Request for CHANGELOG
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "docs: update CHANGELOG for version ${{ steps.version.outputs.version }}"
+          branch: "changelog/v${{ steps.version.outputs.version }}"
+          delete-branch: true
+          title: "📝 Update CHANGELOG for version ${{ steps.version.outputs.version }}"
+          body: |
+            This PR updates the CHANGELOG.md file with the release notes for version ${{ steps.version.outputs.version }}.
+
+            ## Release ${{ steps.version.outputs.version }}
+
+            ${{ steps.changelog.outputs.changelog }}
+
+            ---
+
+            This PR was automatically created after publishing the release.
