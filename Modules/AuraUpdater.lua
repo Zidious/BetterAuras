@@ -11,8 +11,12 @@
 
 local ADDON_NAME, namespace = ...
 
+-- Ensure BetterAuras global exists
+BetterAuras = BetterAuras or {}
+
 -- Get addon reference
-local BetterAuras = namespace.BetterAuras
+local BetterAuras = BetterAuras
+namespace.BetterAuras = BetterAuras
 
 -- Get module references
 local Constants = namespace.Constants
@@ -69,7 +73,7 @@ end
     @param frame table The frame to update
     @return number The number of auras updated
 ]]
-function VividFrames:UpdateAuraLayout(frame)
+function BetterAuras:UpdateAuraLayout(frame)
     if not frame or not frame.unit then
         return 0
     end

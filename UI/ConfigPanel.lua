@@ -171,8 +171,11 @@ function ConfigPanel:Create()
         refreshPreview()
 
         -- Refresh all party/raid frames with new profile settings
-        if VividFrames and type(VividFrames.UpdateAllFrames) == "function" then
-            VividFrames:UpdateAllFrames()
+        if BetterAuras and type(BetterAuras.UpdateAllFrames) == "function" then
+            BetterAuras:UpdateAllFrames()
+        else
+            print(Constants.COLOR_ERROR .. Constants.ADDON_NAME .. ": " ..
+                Constants.MSG_FUNCTION_NOT_FOUND .. Constants.COLOR_RESET)
         end
     end)
 
@@ -186,6 +189,9 @@ function ConfigPanel:Create()
         -- Refresh all party/raid frames with new profile settings
         if BetterAuras and type(BetterAuras.UpdateAllFrames) == "function" then
             BetterAuras:UpdateAllFrames()
+        else
+            print(Constants.COLOR_ERROR .. Constants.ADDON_NAME .. ": " ..
+                Constants.MSG_FUNCTION_NOT_FOUND .. Constants.COLOR_RESET)
         end
     end)
 
