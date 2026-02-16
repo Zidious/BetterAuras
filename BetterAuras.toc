@@ -3,6 +3,7 @@
 ## Notes: Customize the appearance of buffs and debuffs on party and raid frames. Adjust size, positioning, spacing, padding, and stack count display with real-time preview.
 ## Author: Zidious
 ## Version: @project-version@
+## X-Curse-Project-ID: 1463515
 ## SavedVariables: BetterAurasDB
 
 # Core modules (load first)
