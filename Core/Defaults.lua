@@ -6,7 +6,7 @@
 
     @file Defaults.lua
     @author Zidious
-    @version 1.0.0
+    @version 1.0.1
 ]]
 
 local ADDON_NAME, namespace = ...
@@ -50,7 +50,7 @@ Defaults.profile = {
 -- Default database structure (with profiles support)
 Defaults.database = {
     -- Version tracking
-    version = "1.0.0",
+    version = "1.0.1",
 
     -- Profile storage
     profiles = {
