@@ -103,96 +103,42 @@ end
         - stackOffsetY: number - Y offset for stack count
 ]]
 local function processAuraFrames(config)
-    -- Validate config and required fields
-    if not config or not config.auraType or config.auraType == "" then
+    -- Validate config
+    if not config or not config.parentFrame then
         return
     end
 
-    if not config.frameName or config.frameName == "" then
+    -- Get aura frames array (always available in Midnight 12.0.0+)
+    local auraFrames
+    if config.auraType == Constants.BUFF_FRAME_SUFFIX then
+        auraFrames = config.parentFrame.buffFrames
+    elseif config.auraType == Constants.DEBUFF_FRAME_SUFFIX then
+        auraFrames = config.parentFrame.debuffFrames
+    end
+
+    if not auraFrames then
         return
     end
 
     local firstAura = nil
     local previousAuraFrame = nil
 
-    for i = 1, Constants.MAX_AURA_SLOTS do
-        local auraFrame = _G[config.frameName .. config.auraType .. i]
+    -- Iterate only visible auras
+    for _, auraFrame in ipairs(auraFrames) do
+        if auraFrame:IsShown() then
+            auraFrame:ClearAllPoints()
+            auraFrame:SetSize(config.size, config.size)
 
-        -- Validate that auraFrame exists and is a proper table with frame methods
-        if auraFrame and type(auraFrame) == "table" then
-            -- Comprehensive validation: ensure this is a valid UI frame with required methods
-            -- Use pcall to safely check all frame properties
-            local isValidFrame = pcall(function()
-                -- Check for required frame methods
-                if not (type(auraFrame.GetName) == "function" and
-                        type(auraFrame.IsShown) == "function" and
-                        type(auraFrame.ClearAllPoints) == "function" and
-                        type(auraFrame.SetSize) == "function" and
-                        type(auraFrame.SetPoint) == "function") then
-                    return false
-                end
-
-                -- Get frame name safely
-                local auraFrameName = auraFrame:GetName()
-                if not auraFrameName or type(auraFrameName) ~= "string" then
-                    return false
-                end
-
-                -- Explicitly exclude nameplate frames by name
-                if auraFrameName:match("NamePlate") then
-                    return false
-                end
-
-                -- Check if parent frame (if exists) is a nameplate
-                local parent = auraFrame:GetParent()
-                if parent then
-                    local parentName = parent.GetName and parent:GetName()
-                    if parentName and type(parentName) == "string" and parentName:match("NamePlate") then
-                        return false
-                    end
-                    -- Check parent's unit token
-                    if parent.unit and type(parent.unit) == "string" and parent.unit:match("^nameplate") then
-                        return false
-                    end
-                end
-
-                return true
-            end)
-
-            if not isValidFrame then
-                -- Skip this frame - it's either invalid or a nameplate
-                break
+            if not firstAura then
+                applyFirstAuraAnchor(auraFrame, config.parentFrame, config.anchor,
+                    config.paddingTop, config.paddingRight, config.paddingBottom, config.paddingLeft)
+                firstAura = auraFrame
+            else
+                applySubsequentAuraAnchor(auraFrame, previousAuraFrame, config.anchor, config.spacing)
             end
 
-            -- Now safe to check if frame is shown
-            local success, isShown = pcall(function()
-                return auraFrame:IsShown()
-            end)
-
-            if success and isShown then
-                -- Safely modify the frame with pcall protection
-                local modifySuccess = pcall(function()
-                    auraFrame:ClearAllPoints()
-                    auraFrame:SetSize(config.size, config.size)
-
-                    if not firstAura then
-                        -- Position first aura
-                        applyFirstAuraAnchor(auraFrame, config.parentFrame, config.anchor,
-                            config.paddingTop, config.paddingRight, config.paddingBottom, config.paddingLeft)
-                        firstAura = auraFrame
-                    else
-                        -- Position subsequent auras
-                        applySubsequentAuraAnchor(auraFrame, previousAuraFrame, config.anchor, config.spacing)
-                    end
-
-                    -- Update stack count text
-                    updateStackCount(auraFrame, config.stackFontSize, config.stackOffsetX, config.stackOffsetY)
-                end)
-
-                if modifySuccess then
-                    previousAuraFrame = auraFrame
-                end
-            end
+            updateStackCount(auraFrame, config.stackFontSize, config.stackOffsetX, config.stackOffsetY)
+            previousAuraFrame = auraFrame
         end
     end
 end
@@ -200,32 +146,17 @@ end
 --[[
     Applies custom anchoring to all auras on a frame.
     This is the main entry point for custom aura positioning.
+    Note: Aura frames are not protected, safe to call during combat.
 
     @param frame table The frame to apply custom anchoring to
 ]]
 function BetterAuras:ApplyCustomAnchoring(frame)
-    if not frame or InCombatLockdown() then
+    if not frame or not frame.unit then
         return
     end
 
-    -- Check for nameplate by unit token first (most reliable)
-    if frame.unit and type(frame.unit) == "string" and frame.unit:match("^nameplate") then
-        return
-    end
-
-    -- Validate that Constants are properly initialized
-    if not Constants or not Constants.BUFF_FRAME_SUFFIX or not Constants.DEBUFF_FRAME_SUFFIX then
-        return
-    end
-
-    -- Safely get frame name
-    local frameName = frame.GetName and frame:GetName()
-    if not frameName then
-        return
-    end
-
-    -- Extra safety: don't process nameplate frames by name
-    if frameName:match("NamePlate") then
+    -- Filter nameplates by unit token
+    if frame.unit:match("^nameplate") then
         return
     end
 
@@ -253,7 +184,6 @@ function BetterAuras:ApplyCustomAnchoring(frame)
 
     -- Process buff frames
     processAuraFrames({
-        frameName = frameName,
         parentFrame = frame,
         auraType = Constants.BUFF_FRAME_SUFFIX,
         size = buffSize,
@@ -270,7 +200,6 @@ function BetterAuras:ApplyCustomAnchoring(frame)
 
     -- Process debuff frames
     processAuraFrames({
-        frameName = frameName,
         parentFrame = frame,
         auraType = Constants.DEBUFF_FRAME_SUFFIX,
         size = debuffSize,

@@ -59,17 +59,18 @@ Constants.ANCHOR_OPTIONS = {
 }
 
 --------------------------------------------------------------------------------
--- Frame Names and Patterns
+-- Frame Names and Patterns (Midnight 12.0.0+)
 --------------------------------------------------------------------------------
 
 Constants.PARTY_UNIT_PATTERN = "^party"
 Constants.RAID_UNIT_PATTERN = "^raid"
 Constants.PLAYER_UNIT = "player"
 
+-- Frame suffixes for aura type identification
 Constants.BUFF_FRAME_SUFFIX = "Buff"
 Constants.DEBUFF_FRAME_SUFFIX = "Debuff"
 
-Constants.PARTY_MEMBER_FRAME_PREFIX = "PartyMemberFrame"
+-- CompactUnitFrame names
 Constants.COMPACT_PARTY_FRAME_PLAYER = "CompactPartyFramePlayer"
 Constants.COMPACT_PARTY_FRAME_MEMBER_PREFIX = "CompactPartyFrameMember"
 
@@ -77,19 +78,11 @@ Constants.COMPACT_PARTY_FRAME_MEMBER_PREFIX = "CompactPartyFrameMember"
 -- UI Element Sizes and Limits
 --------------------------------------------------------------------------------
 
-Constants.MAX_AURA_SLOTS = 40        -- Maximum number of aura slots to check
 Constants.CONFIG_PANEL_WIDTH = 800   -- Configuration panel width
 Constants.CONFIG_PANEL_HEIGHT = 600  -- Configuration panel height
 Constants.PREVIEW_FRAME_WIDTH = 320  -- Preview frame width
 Constants.PREVIEW_FRAME_HEIGHT = 110 -- Preview frame height
 Constants.SCROLL_CONTENT_WIDTH = 340 -- Scroll frame content width
-
---------------------------------------------------------------------------------
--- Timer Delays
---------------------------------------------------------------------------------
-
-Constants.ANCHOR_UPDATE_DELAY = 0    -- Delay for anchoring updates (seconds)
-Constants.FRAME_REFRESH_DELAY = 0.05 -- Delay for frame refresh (seconds)
 
 --------------------------------------------------------------------------------
 -- Slider Ranges
@@ -205,8 +198,8 @@ Constants.EVENT_PLAYER_ROLES_ASSIGNED = "PLAYER_ROLES_ASSIGNED"
 
 Constants.MSG_COMBAT_LOCKDOWN = "Cannot apply changes while in combat!"
 Constants.MSG_SETTINGS_RESET = "Settings reset to defaults!"
-Constants.MSG_FRAMES_UPDATED = "Updated %s auras on %s frames!"
-Constants.MSG_NO_FRAMES_FOUND = "No party/raid frames found with visible auras."
+Constants.MSG_FRAMES_UPDATED = "Applied custom positioning to %s frames!"
+Constants.MSG_NO_FRAMES_FOUND = "No party/raid frames found."
 Constants.MSG_FUNCTION_NOT_FOUND = "UpdateAllFrames function not found! Try reloading the UI."
 
 --------------------------------------------------------------------------------

@@ -260,11 +260,10 @@ function ConfigPanel:CreateButtons()
 
         -- Force complete refresh of all party/raid frames
         if BetterAuras and type(BetterAuras.UpdateAllFrames) == "function" then
-            local refreshed, auraCount = BetterAuras:UpdateAllFrames()
+            local refreshed = BetterAuras:UpdateAllFrames()
             if refreshed and refreshed > 0 then
                 print(Constants.COLOR_SUCCESS .. Constants.ADDON_NAME .. ":" .. Constants.COLOR_RESET ..
                     " " .. string.format(Constants.MSG_FRAMES_UPDATED,
-                        Constants.COLOR_HIGHLIGHT .. auraCount .. Constants.COLOR_RESET,
                         Constants.COLOR_HIGHLIGHT .. refreshed .. Constants.COLOR_RESET))
             else
                 print(Constants.COLOR_WARNING .. Constants.ADDON_NAME .. ":" .. Constants.COLOR_RESET ..
