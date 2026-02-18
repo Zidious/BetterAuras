@@ -5,6 +5,17 @@ All notable changes to BetterAuras will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [1.0.2] - 2026-02-18
+
+- chore: remove useless RELEASE.md and amend readme (ea1d9ed)
+- chore: clean up release and changelog generation (139fb42)
+- chore: add icon TGA and category to TOC (8c9366f)
+- chore: update interface version to latest, add categories translations (1a7112b)
+- fix: simply update logic, replace with more available modern APIs (f3e5688)
+- ci: update release workflow to allow robot to open PR with changelog updates (dfabcfc)
+- chore: update CHANGELOG (b5c9d31)
+
 ## [1.0.1] - Bug Fixes and Improvements
 
 ### Added

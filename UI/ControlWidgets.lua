@@ -6,7 +6,7 @@
 
     @file ControlWidgets.lua
     @author Zidious
-    @version 1.0.1
+    @version 1.0.2
 ]]
 
 local ADDON_NAME, namespace = ...
