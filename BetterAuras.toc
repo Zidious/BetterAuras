@@ -1,10 +1,22 @@
-## Interface: 120000
+## Interface: 120001, 120000
 ## Title: BetterAuras
 ## Notes: Customize the appearance of buffs and debuffs on party and raid frames. Adjust size, positioning, spacing, padding, and stack count display with real-time preview.
 ## Author: Zidious
 ## Version: @project-version@
 ## X-Curse-Project-ID: 1463515
 ## SavedVariables: BetterAurasDB
+
+## Category: Unit Frames
+## Category-deDE: Einheitsrahmen
+## Category-esES: Marcos de Unidad
+## Category-esMX: Marcos de Unidad
+## Category-frFR: Cadres d'unité
+## Category-itIT: Frame Unità
+## Category-koKR: 유닛 프레임
+## Category-ptBR: Quadros de Unidade
+## Category-ruRU: Рамки юнитов
+## Category-zhCN: 单位框体
+## Category-zhTW: 單位框架
 
 # Core modules (load first)
 Core\Constants.lua
