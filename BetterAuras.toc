@@ -3,7 +3,7 @@
 ## Notes: Customize the appearance of buffs and debuffs on party and raid frames. Adjust size, positioning, spacing, padding, and stack count display with real-time preview.
 ## IconTexture: Interface\Addons\BetterAuras\assets\BetterAuras_Icon_Texture.tga
 ## Author: Zidious
-## Version: @project-version@
+## Version: 1.0.1
 ## X-Curse-Project-ID: 1463515
 ## SavedVariables: BetterAurasDB
 

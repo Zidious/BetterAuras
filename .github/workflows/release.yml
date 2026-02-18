@@ -79,12 +79,62 @@ jobs:
           # Update database version in Defaults.lua
           sed -i "s/version = \"[0-9]\+\.[0-9]\+\.[0-9]\+\"/version = \"${VERSION}\"/g" Core/Defaults.lua
 
+          # Update TOC file version
+          sed -i "s/^## Version: .*/## Version: ${VERSION}/g" BetterAuras.toc
+
           echo "Updated version to ${VERSION} in all files"
 
-      - name: Commit version changes
+      - name: Update CHANGELOG.md
+        run: |
+          # Get the previous tag for changelog generation
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+
+          # Generate changelog entries
+          if [ -n "$PREVIOUS_TAG" ]; then
+            CHANGES=$(git log ${PREVIOUS_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges)
+          else
+            CHANGES=$(git log --pretty=format:"- %s (%h)" --no-merges)
+          fi
+
+          # Get today's date
+          RELEASE_DATE=$(date +%Y-%m-%d)
+
+          # Create updated CHANGELOG with new release section at the top
+          if [ -f CHANGELOG.md ]; then
+            # Extract header (everything before first ##)
+            sed -n '1,/^## /p' CHANGELOG.md | sed '$d' > CHANGELOG.header
+            
+            # Extract existing releases (all sections starting with ##)
+            sed -n '/^## /,$p' CHANGELOG.md > CHANGELOG.releases || echo "" > CHANGELOG.releases
+            
+            # Build new CHANGELOG with new release at top
+            cat CHANGELOG.header > CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            echo "## [${{ steps.version.outputs.version }}] - $RELEASE_DATE" >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            echo "$CHANGES" >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            cat CHANGELOG.releases >> CHANGELOG.md
+            
+            # Cleanup temp files
+            rm -f CHANGELOG.header CHANGELOG.releases
+          else
+            # Create new CHANGELOG if it doesn't exist
+            cat > CHANGELOG.md << EOF
+          # Changelog
+
+          ## [${{ steps.version.outputs.version }}] - $RELEASE_DATE
+
+          $CHANGES
+          EOF
+          fi
+
+          echo "Updated CHANGELOG.md with version ${{ steps.version.outputs.version }}"
+
+      - name: Commit version and changelog changes
         run: |
           git add .
-          git commit -m "chore: bump version to ${{ steps.version.outputs.version }}" || echo "No changes to commit"
+          git commit -m "chore: bump version to ${{ steps.version.outputs.version }} and update changelog" || echo "No changes to commit"
           git push origin main
 
       - name: Create and push tag
@@ -137,63 +187,3 @@ jobs:
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Update CHANGELOG.md
-        run: |
-          # Get the previous tag
-          PREVIOUS_TAG=$(git describe --tags --abbrev=0 ${{ steps.version.outputs.tag }}^ 2>/dev/null || echo "")
-
-          # Generate changelog entries
-          if [ -n "$PREVIOUS_TAG" ]; then
-            CHANGES=$(git log ${PREVIOUS_TAG}..${{ steps.version.outputs.tag }} --pretty=format:"- %s (%h)" --no-merges)
-          else
-            CHANGES=$(git log ${{ steps.version.outputs.tag }} --pretty=format:"- %s (%h)" --no-merges)
-          fi
-
-          # Get today's date
-          RELEASE_DATE=$(date +%Y-%m-%d)
-
-          # Read current CHANGELOG.md and insert new release section
-          # Create temporary file with new release entry
-          awk -v version="${{ steps.version.outputs.version }}" \
-              -v date="$RELEASE_DATE" \
-              -v changes="$CHANGES" \
-          'BEGIN {printed=0}
-          /## \[Unreleased\]/ {
-            print $0
-            print ""
-            if (!printed) {
-              print "## [" version "] - " date
-              print ""
-              print "### Added"
-              print ""
-              # Print the changes
-              system("echo \"" changes "\" | sed \"s/^/\\n/\"")
-              print ""
-              printed=1
-            }
-            next
-          }
-          {print}' CHANGELOG.md > CHANGELOG.tmp
-
-          # Replace old CHANGELOG with updated one
-          mv CHANGELOG.tmp CHANGELOG.md
-
-      - name: Create Pull Request for CHANGELOG
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "docs: update CHANGELOG for version ${{ steps.version.outputs.version }}"
-          branch: "changelog/v${{ steps.version.outputs.version }}"
-          delete-branch: true
-          title: "📝 Update CHANGELOG for version ${{ steps.version.outputs.version }}"
-          body: |
-            This PR updates the CHANGELOG.md file with the release notes for version ${{ steps.version.outputs.version }}.
-
-            ## Release ${{ steps.version.outputs.version }}
-
-            ${{ steps.changelog.outputs.changelog }}
-
-            ---
-
-            This PR was automatically created after publishing the release.

@@ -42,7 +42,7 @@ The workflow automatically:
 
 The addon version is maintained in multiple files:
 
-- `BetterAuras.toc`: `## Version: @project-version@` (replaced during packaging)
+- `BetterAuras.toc`: `## Version: x.x.x` (updated by release workflow)
 - `Core/Defaults.lua`: `version = "x.x.x"` (database version)
 - All `.lua` files: `@version x.x.x` (file header documentation)
 
